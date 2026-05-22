@@ -1,14 +1,19 @@
 package main
 
 import (
+	"embed"
 	"filament-manager/database"
 	"filament-manager/handlers"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
 )
+
+//go:embed frontend/build
+var frontendFiles embed.FS
 
 func main() {
 	// Initialize database
@@ -45,6 +50,32 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}).Methods("GET")
+
+	// Serve embedded React frontend
+	frontendFS, err := fs.Sub(frontendFiles, "frontend/build")
+	if err != nil {
+		log.Fatalf("Failed to load frontend files: %v", err)
+	}
+	fileServer := http.FileServer(http.FS(frontendFS))
+
+	// Serve static files and handle SPA routing
+	router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Try to serve the file
+		path := r.URL.Path
+		if path == "/" {
+			path = "/index.html"
+		}
+
+		// Check if file exists
+		if _, err := fs.Stat(frontendFS, path[1:]); err == nil {
+			fileServer.ServeHTTP(w, r)
+			return
+		}
+
+		// If file doesn't exist, serve index.html for SPA routing
+		r.URL.Path = "/"
+		fileServer.ServeHTTP(w, r)
+	})
 
 	// Start server
 	port := getEnv("PORT", "8080")

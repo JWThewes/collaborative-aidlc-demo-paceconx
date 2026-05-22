@@ -1,6 +1,6 @@
-# Filament Manager - Backend API
+# Filament Manager
 
-A REST API for managing 3D printer filament inventory and usage tracking, built with Go and SQLite.
+A full-stack application for managing 3D printer filament inventory and usage tracking, built with Go, SQLite, and React.
 
 ## Features
 
@@ -9,25 +9,63 @@ A REST API for managing 3D printer filament inventory and usage tracking, built 
 - Log filament usage and track remaining amounts
 - View usage history per filament
 - RESTful API with JSON responses
+- React-based web interface
+- Docker deployment with embedded frontend
 
-## Requirements
+## Quick Start with Docker (Recommended)
+
+The easiest way to run Filament Manager is with Docker:
+
+```bash
+# Build and start the application
+docker-compose up -d
+
+# Access the application
+open http://localhost:8080
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions, backup strategies, and production setup.
+
+## Requirements (Development)
 
 - Go 1.21 or higher
+- Node.js 18 or higher
 - SQLite3
 
-## Setup
+## Development Setup
 
-1. Install dependencies:
+### Backend Setup
+
+1. Install Go dependencies:
 ```bash
 go mod download
 ```
 
-2. Run the application:
+2. Run the backend API:
 ```bash
 go run main.go
 ```
 
 The server will start on port 8080 by default.
+
+### Frontend Setup
+
+1. Navigate to frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Run the development server:
+```bash
+npm start
+```
+
+The React app will start on port 3000 and proxy API requests to port 8080.
 
 ## Configuration
 
@@ -123,9 +161,29 @@ Content-Type: application/json
 
 ## Building for Production
 
+### Docker (Recommended)
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide.
+
 ```bash
-go build -o filament-api
-./filament-api
+docker-compose build
+docker-compose up -d
+```
+
+### Manual Build
+
+1. Build the React frontend:
+```bash
+cd frontend
+npm install
+npm run build
+cd ..
+```
+
+2. Build the Go backend (with embedded frontend):
+```bash
+go build -o filament-manager
+./filament-manager
 ```
 
 ## Testing
