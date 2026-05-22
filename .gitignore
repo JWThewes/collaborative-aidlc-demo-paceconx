@@ -37,3 +37,14 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# Data directory (but keep .gitkeep)
+data/*
+!data/.gitkeep
+
+# Frontend build
+frontend/build/
+frontend/node_modules/
+
+# Docker
+.dockerignore
